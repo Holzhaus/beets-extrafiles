@@ -59,3 +59,81 @@ class BaseTestCase(unittest.TestCase):
         """Remove the example files."""
         self.srcdir.cleanup()
         self.dstdir.cleanup()
+
+
+class MoveFilesTestCase(BaseTestCase):
+    """Testcase that moves files."""
+
+    def testMoveFiles(self):
+        """Test if extra files are detected an moved correctly."""
+        source = os.path.join(self.srcdir.name, 'file.mp3')
+        destination = os.path.join(self.dstdir.name, 'moved_file.mp3')
+
+        item = beets.library.Item.from_path(source)
+        shutil.move(source, destination)
+
+        self.plugin.on_item_moved(
+            item, beets.util.bytestring_path(source),
+            beets.util.bytestring_path(destination),
+        )
+        self.plugin.on_cli_exit(None)
+
+        # Check source directory
+        assert os.path.exists(os.path.join(self.srcdir.name, 'file.txt'))
+        assert not os.path.exists(os.path.join(self.srcdir.name, 'file.cue'))
+        assert not os.path.exists(os.path.join(self.srcdir.name, 'file.log'))
+        assert not os.path.exists(os.path.join(self.srcdir.name, 'audio.log'))
+
+        assert not os.path.exists(os.path.join(self.srcdir.name, 'artwork'))
+        assert not os.path.exists(os.path.join(self.srcdir.name, 'scans'))
+
+        # Check destination directory
+        assert not os.path.exists(os.path.join(self.dstdir.name, 'file.txt'))
+        assert os.path.exists(os.path.join(self.dstdir.name, 'file.cue'))
+        assert not os.path.exists(os.path.join(self.dstdir.name, 'file.log'))
+        assert os.path.exists(os.path.join(self.dstdir.name, 'audio.log'))
+
+        assert not os.path.isdir(os.path.join(self.dstdir.name, 'scans'))
+        assert os.path.isdir(os.path.join(self.dstdir.name, 'artwork'))
+        assert (set(os.listdir(os.path.join(self.dstdir.name, 'artwork'))) ==
+                set(('front.jpg', 'back.jpg')))
+
+
+class CopyFilesTestCase(BaseTestCase):
+    """Testcase that copies files."""
+
+    def testCopyFiles(self):
+        """Test if files are detected and copied correctly."""
+        source = os.path.join(self.srcdir.name, 'file.mp3')
+        destination = os.path.join(self.dstdir.name, 'moved_file.mp3')
+
+        item = beets.library.Item.from_path(source)
+        shutil.copy(source, destination)
+
+        self.plugin.on_item_copied(
+            item, beets.util.bytestring_path(source),
+            beets.util.bytestring_path(destination),
+        )
+        self.plugin.on_cli_exit(None)
+
+        # Check source directory
+        assert os.path.exists(os.path.join(self.srcdir.name, 'file.txt'))
+        assert os.path.exists(os.path.join(self.srcdir.name, 'file.cue'))
+        assert os.path.exists(os.path.join(self.srcdir.name, 'file.log'))
+        assert not os.path.exists(os.path.join(self.srcdir.name, 'audio.log'))
+
+        assert not os.path.exists(os.path.join(self.srcdir.name, 'artwork'))
+        assert os.path.isdir(os.path.join(self.srcdir.name, 'scans'))
+        assert (set(os.listdir(os.path.join(self.srcdir.name, 'scans'))) ==
+                set(('front.jpg', 'back.jpg')))
+
+        # Check destination directory
+        assert not os.path.exists(os.path.join(self.dstdir.name, 'file.txt'))
+        assert os.path.exists(os.path.join(self.dstdir.name, 'file.cue'))
+        assert not os.path.exists(os.path.join(self.dstdir.name, 'file.log'))
+        assert os.path.exists(os.path.join(self.dstdir.name, 'audio.log'))
+
+        assert not os.path.exists(os.path.join(self.dstdir.name, 'scans'))
+        assert os.path.isdir(os.path.join(self.dstdir.name, 'artwork'))
+        assert (set(os.listdir(os.path.join(self.dstdir.name, 'artwork'))) ==
+                set(('front.jpg', 'back.jpg')))
