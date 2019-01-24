@@ -15,6 +15,7 @@ setup(
     license='MIT',
     packages=['beetsplug'],
     namespace_packages=['beetsplug'],
+    test_suite='tests',
     install_requires=['beets>=1.4.7'],
     classifiers=[
         'Topic :: Multimedia :: Sound/Audio',
