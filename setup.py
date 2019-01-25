@@ -12,6 +12,7 @@ setup(
     ),
     author='Jan Holthuis',
     author_email='holthuis.jan@gmail.com',
+    url='https://github.com/Holzhaus/beets-extrafiles',
     license='MIT',
     packages=['beetsplug'],
     namespace_packages=['beetsplug'],
