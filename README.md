@@ -73,3 +73,21 @@ You should also *test every single commit* by running unittests, i.e.:
 
 If a test fails, please fix it *before* you create a pull request.
 If you accidently commit something that still contains errors, please amend, squash or fixup that commit instead of adding a new one.
+
+
+## FAQ
+
+### Why not use the `copyartifacts` plugin?
+
+The [`copyartifacts` plugin](https://github.com/sbarakat/beets-copyartifacts) by Samit Barakat serves the same purpose.
+
+However, it curently seems to be unmaintained:
+The last commit has been made over a year ago and also suffers from a [bug](https://github.com/sbarakat/beets-copyartifacts/issues/38) that makes it crash on every run.
+I wrote a patch and filed a [Pull Request](https://github.com/sbarakat/beets-copyartifacts/pull/43) some time ago, but I has not been merged yet.
+
+Also, wanted to go in a different direction by supporting folders and the ability to do finer-grained path customizations.
+Hence, I wrote `beets-extrafiles`.
+
+### What license is used for this project?
+
+This project is released under the terms of the [MIT license](LICENSE).
