@@ -74,7 +74,7 @@ If a test fails, please fix it *before* you create a pull request.
 If you accidently commit something that still contains errors, please amend, squash or fixup that commit instead of adding a new one.
 
 
-## FAQ
+## F.A.Q.
 
 ### Why not use the `copyartifacts` plugin?
 
