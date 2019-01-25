@@ -5,8 +5,7 @@ A plugin for [beets](http://beets.io/) that copies additional files and director
 
 ## Installation
 
-**Important:** Even though beets supports Python 2, this plugin does not - it only supports Python 3.
-If you really need Python 2 and you patch does not make the code considerably harder to read, feel free to file a Pull Request.
+**Important:** Even though beets supports Python 2 and Windows, this plugin does not - it only supports Python 3 on a Unix-like OS. See the [F.A.Q. section](#faq) for details.
 
 This plugin has no dependencies apart from [`setuptools`](https://pypi.org/project/setuptools/) and [`beets`](https://pypi.org/project/beets/) itself.
 
@@ -87,6 +86,16 @@ I wrote a patch and filed a [Pull Request](https://github.com/sbarakat/beets-cop
 
 Also, wanted to go in a different direction by supporting folders and the ability to do finer-grained path customizations.
 Hence, I wrote `beets-extrafiles`.
+
+### Why does this plugin not support Python 2 and Windows?
+
+I initally wrote this plugin, because I needed it.
+Since I use neither Python 2 nor Windows, I didn't implement support.
+
+If you really need support, feel free to write a patch and file a Pull Request.
+As long as it does not make the code considerably harder to read, I'll merge it.
+
+For Windows support, some kind of Continuous Integration (CI) solution would also be necessary to prevent future breakage.
 
 ### What license is used for this project?
 
