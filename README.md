@@ -1,4 +1,4 @@
-# beets-extrafiles
+# beets-extrafiles [![Build Status](https://travis-ci.org/Holzhaus/beets-extrafiles.svg?branch=master)](https://travis-ci.org/Holzhaus/beets-extrafiles)
 
 A plugin for [beets](http://beets.io/) that copies additional files and directories during the import process.
 
