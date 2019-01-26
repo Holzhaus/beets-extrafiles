@@ -38,7 +38,7 @@ deploy:
     secure: VjUTO4tdkWEYpip7ZA31fQl2cP4JiGdfzV/R5S9RTOjuYZAg8lmZunf6osC7tH45uX7yCROoz+G19MxwIZvJLir+TA5HoBm1GHcYVRiIG0QKHUSB+2zrdwWfSribC6Uemg9b1197iZcXhGtxpzyQEZFFDecF1jXStDDUtFpfyHACbQ2lcPvIL2eb0m12KAjGl1hQtkvRmE9EXPkkisP9gfbgqFbiuvUo2s75MGRV3rE2YzX8cWIUlrcTJtqT2bGW8svjx66nivf+6+0APTJEt2C+04oi12QN815K4/QWMNppqS/5JlzDFYlsaT+Wx8TNKbNCjbm3+fVKO/XO0njgMbzponefnNM/fBf0KQMg7Y52SwyttQbNUV3uX7Q+Tp5yLIx/nRQFJ83uDbf87HT9Ab85mGJl3xPa7FQZehAnyeAMOn5t3sSsGEPL4VWpifYxLttE4AClDZ9PrVj0Z8VZOHqVKmL0ct1yUbBG5SWJ1VojXbCB8CoF4V1eEOJP7IIk1NROSq+Ae0TEuv0ullYmV6SMUrDsny/2YT/TPOIxKKUqc0QrBq3zQwazyOfZ61rzka55ShtIvINJeYtqUfBiicuBSrk8e0/TKvkdHp6Vbel/oiJvWmWexKHdfw/fBq6x5YEd/oWSYeIzhOVHsA/ZJMxzuHnx4+XmTchkqmg8ZLs=
   name: "$TRAVIS_TAG"
   body: "Release $TRAVIS_TAG"
-  draft: true
+  draft: false
   skip_cleanup: true
   file_glob: true
   file: dist/*
