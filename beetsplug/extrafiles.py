@@ -141,16 +141,18 @@ class ExtraFilesPlugin(beets.plugins.BeetsPlugin):
             ),
         }
 
-        for path, category in self.find_files(
-            source,
+        sourcedir = os.path.dirname(source)
+
+        for path, category in self.match_patterns(
+            sourcedir,
             skip=self._scanned_paths,
         ):
             destpath = self.get_destination(path, category, meta.copy())
             yield path, destpath
 
-    def find_files(self, source, skip=set()):
+    def match_patterns(self, source, skip=set()):
         """Find all files matched by the patterns."""
-        source_path = beets.util.displayable_path(os.path.dirname(source))
+        source_path = beets.util.displayable_path(source)
 
         if source_path in skip:
             return

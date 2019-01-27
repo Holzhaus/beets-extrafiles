@@ -61,19 +61,21 @@ class BaseTestCase(unittest.TestCase):
         self.dstdir.cleanup()
 
 
-class FindPathsTestCase(BaseTestCase):
-    """Testcase that checks if all extra files are found."""
+class MatchPatternsTestCase(BaseTestCase):
+    """Testcase that checks if all extra files are matched."""
 
-    def testFindPaths(self):
-        """Test if extra files are found in the media file's directory."""
-        files = set(self.plugin.find_files(
-            source=os.path.join(self.srcdir.name, 'file.mp3'),
-        ))
+    def testMatchPattern(self):
+        """Test if extra files are matched in the media file's directory."""
+        sourcedir = self.srcdir.name
+        files = set(
+            (beets.util.displayable_path(path), category)
+            for path, category in self.plugin.match_patterns(source=sourcedir)
+        )
 
         expected_files = set([
-            (os.path.join(self.srcdir.name, 'scans/'), 'artwork'),
-            (os.path.join(self.srcdir.name, 'file.cue'), 'cue'),
-            (os.path.join(self.srcdir.name, 'file.log'), 'log'),
+            (os.path.join(sourcedir, 'scans/'), 'artwork'),
+            (os.path.join(sourcedir, 'file.cue'), 'cue'),
+            (os.path.join(sourcedir, 'file.log'), 'log'),
         ])
 
         assert files == expected_files
