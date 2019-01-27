@@ -52,6 +52,20 @@ class BaseTestCase(unittest.TestCase):
         )
         self._create_example_files(os.path.join(self.srcdir.name, 'single'))
 
+        # Create example files for multi-directory album
+        os.makedirs(os.path.join(self.srcdir.name, 'multiple', 'CD1'))
+        os.makedirs(os.path.join(self.dstdir.name, 'multiple'))
+        shutil.copy(
+            os.path.join(RSRC, 'full.mp3'),
+            os.path.join(self.srcdir.name, 'multiple', 'CD1', 'file.mp3'),
+        )
+        os.makedirs(os.path.join(self.srcdir.name, 'multiple', 'CD2'))
+        shutil.copy(
+            os.path.join(RSRC, 'full.mp3'),
+            os.path.join(self.srcdir.name, 'multiple', 'CD2', 'file.mp3'),
+        )
+        self._create_example_files(os.path.join(self.srcdir.name, 'multiple'))
+
         # Set up plugin instance
         config = beets.util.confit.RootView(sources=[
             beets.util.confit.ConfigSource.of(self.PLUGIN_CONFIG),
@@ -128,6 +142,53 @@ class MoveFilesTestCase(BaseTestCase):
         assert (set(os.listdir(os.path.join(destdir, 'artwork'))) ==
                 set(('front.jpg', 'back.jpg')))
 
+    def testMoveFilesMultiple(self):
+        """Test if extra files are moved for multi-directory imports."""
+        sourcedir = os.path.join(self.srcdir.name, 'multiple')
+        destdir = os.path.join(self.dstdir.name, 'multiple')
+
+        # Move first file
+        source = os.path.join(sourcedir, 'CD1', 'file.mp3')
+        destination = os.path.join(destdir, '01 - moved_file.mp3')
+        item = beets.library.Item.from_path(source)
+        shutil.move(source, destination)
+        self.plugin.on_item_moved(
+            item, beets.util.bytestring_path(source),
+            beets.util.bytestring_path(destination),
+        )
+
+        # Move second file
+        source = os.path.join(sourcedir, 'CD2', 'file.mp3')
+        destination = os.path.join(destdir, '02 - moved_file.mp3')
+        item = beets.library.Item.from_path(source)
+        shutil.move(source, destination)
+        self.plugin.on_item_moved(
+            item, beets.util.bytestring_path(source),
+            beets.util.bytestring_path(destination),
+        )
+
+        self.plugin.on_cli_exit(None)
+
+        # Check source directory
+        assert os.path.exists(os.path.join(sourcedir, 'file.txt'))
+        assert not os.path.exists(os.path.join(sourcedir, 'file.cue'))
+        assert not os.path.exists(os.path.join(sourcedir, 'file.log'))
+        assert not os.path.exists(os.path.join(sourcedir, 'audio.log'))
+
+        assert not os.path.exists(os.path.join(sourcedir, 'artwork'))
+        assert not os.path.exists(os.path.join(sourcedir, 'scans'))
+
+        # Check destination directory
+        assert not os.path.exists(os.path.join(destdir, 'file.txt'))
+        assert os.path.exists(os.path.join(destdir, 'file.cue'))
+        assert not os.path.exists(os.path.join(destdir, 'file.log'))
+        assert os.path.exists(os.path.join(destdir, 'audio.log'))
+
+        assert not os.path.isdir(os.path.join(destdir, 'scans'))
+        assert os.path.isdir(os.path.join(destdir, 'artwork'))
+        assert (set(os.listdir(os.path.join(destdir, 'artwork'))) ==
+                set(('front.jpg', 'back.jpg')))
+
 
 class CopyFilesTestCase(BaseTestCase):
     """Testcase that copies files."""
@@ -140,6 +201,55 @@ class CopyFilesTestCase(BaseTestCase):
         # Copy file
         source = os.path.join(sourcedir, 'file.mp3')
         destination = os.path.join(destdir, 'copied_file.mp3')
+        item = beets.library.Item.from_path(source)
+        shutil.copy(source, destination)
+        self.plugin.on_item_copied(
+            item, beets.util.bytestring_path(source),
+            beets.util.bytestring_path(destination),
+        )
+
+        self.plugin.on_cli_exit(None)
+
+        # Check source directory
+        assert os.path.exists(os.path.join(sourcedir, 'file.txt'))
+        assert os.path.exists(os.path.join(sourcedir, 'file.cue'))
+        assert os.path.exists(os.path.join(sourcedir, 'file.log'))
+        assert not os.path.exists(os.path.join(sourcedir, 'audio.log'))
+
+        assert not os.path.exists(os.path.join(sourcedir, 'artwork'))
+        assert os.path.isdir(os.path.join(sourcedir, 'scans'))
+        assert (set(os.listdir(os.path.join(sourcedir, 'scans'))) ==
+                set(('front.jpg', 'back.jpg')))
+
+        # Check destination directory
+        assert not os.path.exists(os.path.join(destdir, 'file.txt'))
+        assert os.path.exists(os.path.join(destdir, 'file.cue'))
+        assert not os.path.exists(os.path.join(destdir, 'file.log'))
+        assert os.path.exists(os.path.join(destdir, 'audio.log'))
+
+        assert not os.path.exists(os.path.join(destdir, 'scans'))
+        assert os.path.isdir(os.path.join(destdir, 'artwork'))
+        assert (set(os.listdir(os.path.join(destdir, 'artwork'))) ==
+                set(('front.jpg', 'back.jpg')))
+
+    def testCopyFilesMultiple(self):
+        """Test if extra files are copied for multi-directory imports."""
+        sourcedir = os.path.join(self.srcdir.name, 'multiple')
+        destdir = os.path.join(self.dstdir.name, 'multiple')
+
+        # Copy first file
+        source = os.path.join(sourcedir, 'CD1', 'file.mp3')
+        destination = os.path.join(destdir, '01 - copied_file.mp3')
+        item = beets.library.Item.from_path(source)
+        shutil.copy(source, destination)
+        self.plugin.on_item_copied(
+            item, beets.util.bytestring_path(source),
+            beets.util.bytestring_path(destination),
+        )
+
+        # Copy second file
+        source = os.path.join(sourcedir, 'CD2', 'file.mp3')
+        destination = os.path.join(destdir, '02 - copied_file.mp3')
         item = beets.library.Item.from_path(source)
         shutil.copy(source, destination)
         self.plugin.on_item_copied(
