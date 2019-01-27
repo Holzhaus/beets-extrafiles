@@ -27,6 +27,9 @@ plugins:
 ```
 
 Also, you need to add [glob patterns](https://docs.python.org/3/library/glob.html#module-glob) that will be matched.
+Patterns match files relative to the root directory of the album, which is the common directory of all the albums files.
+This means that if an album has files in `albumdir/CD1` and `albumdir/CD2`, then all patterns will match relative to `albumdir`.
+
 The snippet below will add a pattern group named `all` that matches all files that have an extension.
 
 ```yaml
