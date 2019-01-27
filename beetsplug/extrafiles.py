@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 """beets-extrafiles plugin for beets."""
 import glob
+import itertools
 import os
 import shutil
+import sys
 import traceback
 
 import beets.dbcore.db
@@ -11,6 +13,25 @@ import beets.mediafile
 import beets.plugins
 import beets.ui
 import beets.util.functemplate
+
+
+def commonpath(paths):
+    """Find longest common sub-path of each path in the sequence paths."""
+    # Typecast to list needed for Python version < 3.6
+    paths = list(paths)
+    if sys.version_info >= (3, 5):
+        return os.path.commonpath(paths)
+    else:
+        # os.path.commonpath does not exist in Python < 3.5
+        prefix = os.path.commonprefix(paths)
+
+        sep = os.sep.encode() if isinstance(prefix, bytes) else os.sep
+        prefix_split = prefix.split(sep)
+        path_split = paths[0].split(sep)
+        if path_split[:len(prefix_split)] != prefix_split:
+            prefix = os.path.dirname(prefix)
+
+        return prefix
 
 
 class FormattedExtraFileMapping(beets.dbcore.db.FormattedMapping):
@@ -51,8 +72,8 @@ class ExtraFilesPlugin(beets.plugins.BeetsPlugin):
         """Initialize a new plugin instance."""
         super(ExtraFilesPlugin, self).__init__(*args, **kwargs)
 
-        self._move_files = set()
-        self._copy_files = set()
+        self._moved_items = set()
+        self._copied_items = set()
         self._scanned_paths = set()
         self.path_formats = beets.ui.get_path_formats(self.config['paths'])
 
@@ -62,20 +83,19 @@ class ExtraFilesPlugin(beets.plugins.BeetsPlugin):
 
     def on_item_moved(self, item, source, destination):
         """Run this listener function on item_moved events."""
-        self._move_files.update(
-            set(self.gather_tasks(item, source, destination)),
-        )
+        self._moved_items.add((item, source, destination))
 
     def on_item_copied(self, item, source, destination):
         """Run this listener function on item_copied events."""
-        self._copy_files.update(
-            set(self.gather_tasks(item, source, destination)),
-        )
+        self._copied_items.add((item, source, destination))
 
     def on_cli_exit(self, lib):
         """Run this listener function when the CLI exits."""
-        self.process_files(self._copy_files, action=self._copy_file)
-        self.process_files(self._move_files, action=self._move_file)
+        files = self.gather_files(self._copied_items)
+        self.process_items(files, action=self._copy_file)
+
+        files = self.gather_files(self._moved_items)
+        self.process_items(files, action=self._move_file)
 
     def _copy_file(self, path, dest):
         """Copy path to dest."""
@@ -102,7 +122,7 @@ class ExtraFilesPlugin(beets.plugins.BeetsPlugin):
         self._log.info('Moving extra file: {0} -> {0}', path, dest)
         shutil.move(path, dest)
 
-    def process_files(self, files, action):
+    def process_items(self, files, action):
         """Move path to dest."""
         # Skip files that were moved by other plugins
         skipped_files = set()
@@ -130,27 +150,40 @@ class ExtraFilesPlugin(beets.plugins.BeetsPlugin):
                     destination,
                 )
 
-    def gather_tasks(self, item, source, destination):
-        """Generate a sequence of (path, destpath) tuples for an item."""
-        meta = {
-            'artist': item.artist or u'None',
-            'albumartist': item.albumartist or u'None',
-            'album': item.album or u'None',
-            'albumpath': beets.util.displayable_path(
-                os.path.dirname(destination),
-            ),
-        }
+    def gather_files(self, itemops):
+        """Generate a sequence of (path, destpath) tuples."""
+        def group(itemop):
+            item = itemop[0]
+            return (item.albumartist or item.artist, item.album)
 
-        for path, category in self.find_files(
-            source,
-            skip=self._scanned_paths,
-        ):
-            destpath = self.get_destination(path, category, meta.copy())
-            yield path, destpath
+        sorted_itemops = sorted(itemops, key=group)
+        for _, itemopgroup in itertools.groupby(sorted_itemops, key=group):
+            items, sources, destinations = zip(*itemopgroup)
+            item = items[0]
 
-    def find_files(self, source, skip=set()):
+            sourcedirs = set(os.path.dirname(f) for f in sources)
+            destdirs = set(os.path.dirname(f) for f in destinations)
+
+            source = commonpath(sourcedirs)
+            destination = commonpath(destdirs)
+
+            meta = {
+                'artist': item.artist or u'None',
+                'albumartist': item.albumartist or u'None',
+                'album': item.album or u'None',
+                'albumpath': beets.util.displayable_path(destination),
+            }
+
+            for path, category in self.match_patterns(
+                source,
+                skip=self._scanned_paths,
+            ):
+                destpath = self.get_destination(path, category, meta.copy())
+                yield path, destpath
+
+    def match_patterns(self, source, skip=set()):
         """Find all files matched by the patterns."""
-        source_path = beets.util.displayable_path(os.path.dirname(source))
+        source_path = beets.util.displayable_path(source)
 
         if source_path in skip:
             return
