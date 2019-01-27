@@ -29,26 +29,31 @@ class BaseTestCase(unittest.TestCase):
         },
     }
 
+    def _create_example_files(self, directory):
+        for filename in ('file.cue', 'file.txt', 'file.log'):
+            open(os.path.join(directory, filename), mode='w').close()
+
+        artwork_path = os.path.join(directory, 'scans')
+        os.mkdir(artwork_path)
+        for filename in ('front.jpg', 'back.jpg'):
+            open(os.path.join(artwork_path, filename), mode='w').close()
+
     def setUp(self):
         """Set up example files and instanciate the plugin."""
         self.srcdir = tempfile.TemporaryDirectory(suffix='src')
         self.dstdir = tempfile.TemporaryDirectory(suffix='dst')
-        for filename in ('file.cue', 'file.txt', 'file.log'):
-            open(os.path.join(self.srcdir.name, filename), mode='w').close()
 
+        # Create example files
         shutil.copy(
             os.path.join(RSRC, 'full.mp3'),
             os.path.join(self.srcdir.name, 'file.mp3'),
         )
+        self._create_example_files(self.srcdir.name)
 
+        # Set up plugin instance
         config = beets.util.confit.RootView(sources=[
             beets.util.confit.ConfigSource.of(self.PLUGIN_CONFIG),
         ])
-
-        artwork_path = os.path.join(self.srcdir.name, 'scans')
-        os.mkdir(artwork_path)
-        for filename in ('front.jpg', 'back.jpg'):
-            open(os.path.join(artwork_path, filename), mode='w').close()
 
         with unittest.mock.patch(
                 'beetsplug.extrafiles.beets.plugins.beets.config', config,
