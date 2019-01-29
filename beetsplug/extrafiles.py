@@ -203,9 +203,10 @@ class ExtraFilesPlugin(beets.plugins.BeetsPlugin):
 
     def get_destination(self, path, category, meta):
         """Get the destination path for a source file's relative path."""
+        pathsep = beets.config['path_sep_replace'].get(str)
         strpath = beets.util.displayable_path(path)
         old_basename, fileext = os.path.splitext(os.path.basename(strpath))
-        old_filename, _ = os.path.splitext(' - '.join(strpath.split(os.sep)))
+        old_filename, _ = os.path.splitext(pathsep.join(strpath.split(os.sep)))
 
         mapping = FormattedExtraFileMapping(
             ExtraFileModel(
