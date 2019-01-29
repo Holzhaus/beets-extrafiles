@@ -29,14 +29,14 @@ class BaseTestCase(unittest.TestCase):
         },
     }
 
-    def _create_example_files(self, directory):
-        for filename in ('file.cue', 'file.txt', 'file.log'):
-            open(os.path.join(directory, filename), mode='w').close()
+    def _create_example_file(self, *path):
+        open(os.path.join(*path), mode='w').close()
 
-        artwork_path = os.path.join(directory, 'scans')
+    def _create_artwork_files(self, *path):
+        artwork_path = os.path.join(*path)
         os.mkdir(artwork_path)
         for filename in ('front.jpg', 'back.jpg'):
-            open(os.path.join(artwork_path, filename), mode='w').close()
+            self._create_example_file(artwork_path, filename)
 
     def setUp(self):
         """Set up example files and instanciate the plugin."""
@@ -50,7 +50,9 @@ class BaseTestCase(unittest.TestCase):
             os.path.join(RSRC, 'full.mp3'),
             os.path.join(self.srcdir.name, 'single', 'file.mp3'),
         )
-        self._create_example_files(os.path.join(self.srcdir.name, 'single'))
+        for filename in ('file.cue', 'file.txt', 'file.log'):
+            self._create_example_file(self.srcdir.name, 'single', filename)
+        self._create_artwork_files(self.srcdir.name, 'single', 'scans')
 
         # Create example files for multi-directory album
         os.makedirs(os.path.join(self.srcdir.name, 'multiple', 'CD1'))
@@ -64,7 +66,9 @@ class BaseTestCase(unittest.TestCase):
             os.path.join(RSRC, 'full.mp3'),
             os.path.join(self.srcdir.name, 'multiple', 'CD2', 'file.mp3'),
         )
-        self._create_example_files(os.path.join(self.srcdir.name, 'multiple'))
+        for filename in ('file.cue', 'file.txt', 'file.log'):
+            self._create_example_file(self.srcdir.name, 'multiple', filename)
+        self._create_artwork_files(self.srcdir.name, 'multiple', 'scans')
 
         # Set up plugin instance
         config = beets.util.confit.RootView(sources=[
