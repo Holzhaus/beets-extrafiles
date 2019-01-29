@@ -99,7 +99,7 @@ class ExtraFilesPlugin(beets.plugins.BeetsPlugin):
 
     def _copy_file(self, path, dest):
         """Copy path to dest."""
-        self._log.info('Copying extra file: {0} -> {0}', path, dest)
+        self._log.info('Copying extra file: {0} -> {1}', path, dest)
         if os.path.isdir(path):
             if os.path.exists(dest):
                 raise beets.util.FilesystemError(
@@ -119,7 +119,7 @@ class ExtraFilesPlugin(beets.plugins.BeetsPlugin):
 
     def _move_file(self, path, dest):
         """Move path to dest."""
-        self._log.info('Moving extra file: {0} -> {0}', path, dest)
+        self._log.info('Moving extra file: {0} -> {1}', path, dest)
         shutil.move(path, dest)
 
     def process_items(self, files, action):
