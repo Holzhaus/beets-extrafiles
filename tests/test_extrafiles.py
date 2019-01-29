@@ -19,7 +19,7 @@ class BaseTestCase(unittest.TestCase):
         'extrafiles': {
             'patterns': {
                 'log': ['*.log'],
-                'cue': ['*.cue'],
+                'cue': ['*.cue', '*/*.cue'],
                 'artwork': ['scans/', 'Scans/', 'artwork/', 'Artwork/'],
             },
             'paths': {
@@ -68,8 +68,10 @@ class BaseTestCase(unittest.TestCase):
             os.path.join(RSRC, 'full.mp3'),
             os.path.join(sourcedir, 'CD2', 'file.mp3'),
         )
-        for filename in ('file.cue', 'file.txt', 'file.log'):
+        for filename in ('file.txt', 'file.log'):
             self._create_example_file(sourcedir, filename)
+        for discdir in ('CD1', 'CD2'):
+            self._create_example_file(sourcedir, discdir, 'file.cue')
         self._create_artwork_files(sourcedir, 'scans')
 
         # Set up plugin instance
@@ -177,7 +179,8 @@ class MoveFilesTestCase(BaseTestCase):
 
         # Check source directory
         assert os.path.exists(os.path.join(sourcedir, 'file.txt'))
-        assert not os.path.exists(os.path.join(sourcedir, 'file.cue'))
+        assert not os.path.exists(os.path.join(sourcedir, 'CD1', 'file.cue'))
+        assert not os.path.exists(os.path.join(sourcedir, 'CD2', 'file.cue'))
         assert not os.path.exists(os.path.join(sourcedir, 'file.log'))
         assert not os.path.exists(os.path.join(sourcedir, 'audio.log'))
 
@@ -186,7 +189,8 @@ class MoveFilesTestCase(BaseTestCase):
 
         # Check destination directory
         assert not os.path.exists(os.path.join(destdir, 'file.txt'))
-        assert os.path.exists(os.path.join(destdir, 'file.cue'))
+        assert not os.path.exists(os.path.join(sourcedir, 'CD1_file.cue'))
+        assert not os.path.exists(os.path.join(sourcedir, 'CD2_file.cue'))
         assert not os.path.exists(os.path.join(destdir, 'file.log'))
         assert os.path.exists(os.path.join(destdir, 'audio.log'))
 
@@ -267,7 +271,8 @@ class CopyFilesTestCase(BaseTestCase):
 
         # Check source directory
         assert os.path.exists(os.path.join(sourcedir, 'file.txt'))
-        assert os.path.exists(os.path.join(sourcedir, 'file.cue'))
+        assert os.path.exists(os.path.join(sourcedir, 'CD1', 'file.cue'))
+        assert os.path.exists(os.path.join(sourcedir, 'CD2', 'file.cue'))
         assert os.path.exists(os.path.join(sourcedir, 'file.log'))
         assert not os.path.exists(os.path.join(sourcedir, 'audio.log'))
 
@@ -278,7 +283,8 @@ class CopyFilesTestCase(BaseTestCase):
 
         # Check destination directory
         assert not os.path.exists(os.path.join(destdir, 'file.txt'))
-        assert os.path.exists(os.path.join(destdir, 'file.cue'))
+        assert os.path.exists(os.path.join(destdir, 'CD1_file.cue'))
+        assert os.path.exists(os.path.join(destdir, 'CD2_file.cue'))
         assert not os.path.exists(os.path.join(destdir, 'file.log'))
         assert os.path.exists(os.path.join(destdir, 'audio.log'))
 
