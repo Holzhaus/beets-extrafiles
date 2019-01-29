@@ -107,8 +107,10 @@ class ExtraFilesPlugin(beets.plugins.BeetsPlugin):
                     (path, dest),
                 )
 
+            sourcepath = beets.util.displayable_path(path)
+            destpath = beets.util.displayable_path(dest)
             try:
-                shutil.copytree(path, dest)
+                shutil.copytree(sourcepath, destpath)
             except (OSError, IOError) as exc:
                 raise beets.util.FilesystemError(
                     exc, 'copy', (path, dest),
@@ -120,7 +122,9 @@ class ExtraFilesPlugin(beets.plugins.BeetsPlugin):
     def _move_file(self, path, dest):
         """Move path to dest."""
         self._log.info('Moving extra file: {0} -> {1}', path, dest)
-        shutil.move(path, dest)
+        sourcepath = beets.util.displayable_path(path)
+        destpath = beets.util.displayable_path(dest)
+        shutil.move(sourcepath, destpath)
 
     def process_items(self, files, action):
         """Move path to dest."""
