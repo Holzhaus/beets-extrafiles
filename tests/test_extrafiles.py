@@ -44,31 +44,33 @@ class BaseTestCase(unittest.TestCase):
         self.dstdir = tempfile.TemporaryDirectory(suffix='dst')
 
         # Create example files for single directory album
-        os.makedirs(os.path.join(self.srcdir.name, 'single'))
         os.makedirs(os.path.join(self.dstdir.name, 'single'))
+        sourcedir = os.path.join(self.srcdir.name, 'single')
+        os.makedirs(sourcedir)
         shutil.copy(
             os.path.join(RSRC, 'full.mp3'),
-            os.path.join(self.srcdir.name, 'single', 'file.mp3'),
+            os.path.join(sourcedir, 'file.mp3'),
         )
         for filename in ('file.cue', 'file.txt', 'file.log'):
-            self._create_example_file(self.srcdir.name, 'single', filename)
-        self._create_artwork_files(self.srcdir.name, 'single', 'scans')
+            self._create_example_file(sourcedir, filename)
+        self._create_artwork_files(sourcedir, 'scans')
 
         # Create example files for multi-directory album
-        os.makedirs(os.path.join(self.srcdir.name, 'multiple', 'CD1'))
         os.makedirs(os.path.join(self.dstdir.name, 'multiple'))
+        sourcedir = os.path.join(self.srcdir.name, 'multiple')
+        os.makedirs(os.path.join(sourcedir, 'CD1'))
         shutil.copy(
             os.path.join(RSRC, 'full.mp3'),
-            os.path.join(self.srcdir.name, 'multiple', 'CD1', 'file.mp3'),
+            os.path.join(sourcedir, 'CD1', 'file.mp3'),
         )
-        os.makedirs(os.path.join(self.srcdir.name, 'multiple', 'CD2'))
+        os.makedirs(os.path.join(sourcedir, 'CD2'))
         shutil.copy(
             os.path.join(RSRC, 'full.mp3'),
-            os.path.join(self.srcdir.name, 'multiple', 'CD2', 'file.mp3'),
+            os.path.join(sourcedir, 'CD2', 'file.mp3'),
         )
         for filename in ('file.cue', 'file.txt', 'file.log'):
-            self._create_example_file(self.srcdir.name, 'multiple', filename)
-        self._create_artwork_files(self.srcdir.name, 'multiple', 'scans')
+            self._create_example_file(sourcedir, filename)
+        self._create_artwork_files(sourcedir, 'scans')
 
         # Set up plugin instance
         config = beets.util.confit.RootView(sources=[
