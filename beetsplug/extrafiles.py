@@ -138,16 +138,16 @@ class ExtraFilesPlugin(beets.plugins.BeetsPlugin):
                 )
                 skipped_files.add(source)
 
+            sourcepath = beets.util.bytestring_path(source)
             destpath = beets.util.bytestring_path(destination)
             destpath = beets.util.unique_path(destpath)
             beets.util.mkdirall(destpath)
 
             try:
-                action(source, destination)
+                action(sourcepath, destpath)
             except beets.util.FilesystemError:
                 self._log.warning(
-                    'Failed to process file: {} -> {}', source,
-                    destination,
+                    'Failed to process file: {} -> {}', source, destpath,
                 )
 
     def gather_files(self, itemops):
