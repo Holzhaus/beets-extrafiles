@@ -175,10 +175,11 @@ class ExtraFilesPlugin(beets.plugins.BeetsPlugin):
             }
 
             for path, category in self.match_patterns(
-                source,
-                skip=self._scanned_paths,
+                    source, skip=self._scanned_paths,
             ):
-                destpath = self.get_destination(path, category, meta.copy())
+                path = beets.util.bytestring_path(path)
+                relpath = os.path.normpath(os.path.relpath(path, start=source))
+                destpath = self.get_destination(relpath, category, meta.copy())
                 yield path, destpath
 
     def match_patterns(self, source, skip=set()):
@@ -201,12 +202,15 @@ class ExtraFilesPlugin(beets.plugins.BeetsPlugin):
         skip.add(source_path)
 
     def get_destination(self, path, category, meta):
-        """Get the destination path for a source file."""
-        old_filename, fileext = os.path.splitext(os.path.basename(path))
+        """Get the destination path for a source file's relative path."""
+        strpath = beets.util.displayable_path(path)
+        old_basename, fileext = os.path.splitext(os.path.basename(strpath))
+        old_filename, _ = os.path.splitext(' - '.join(strpath.split(os.sep)))
 
         mapping = FormattedExtraFileMapping(
             ExtraFileModel(
-                filename=beets.util.displayable_path(old_filename),
+                basename=old_basename,
+                filename=old_filename,
                 **meta
             ), for_path=True,
         )
