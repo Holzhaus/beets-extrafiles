@@ -197,6 +197,11 @@ class ExtraFilesPlugin(beets.plugins.BeetsPlugin):
             for pattern in patterns:
                 globpath = os.path.join(glob.escape(source_path), pattern)
                 for path in glob.iglob(globpath):
+                    # Skip special dot directories (just in case)
+                    if os.path.basename(path) in ('.', '..'):
+                        continue
+
+                    # Skip files handled by the beets media importer
                     ext = os.path.splitext(path)[1]
                     if len(ext) > 1 and ext[1:] in beets.mediafile.TYPES:
                         continue
