@@ -9,7 +9,11 @@ A plugin for [beets](http://beets.io/) that copies additional files and director
 
 This plugin has no dependencies apart from [`setuptools`](https://pypi.org/project/setuptools/) and [`beets`](https://pypi.org/project/beets/) itself.
 
-Since this plugin is currently not released on [PyPI](https://pypi.org/), you need to clone and install the plugin manually:
+The plugin in release on [PyPI](https://pypi.org/project/beets-extrafiles/) and can be installed via:
+
+    $ pip3 install --user beets-extrafiles
+
+It is also possible to clone the git repository and install the plugin manually:
 
     $ git clone https://github.com/Holzhaus/beets-extrafiles.git
     $ cd beets-extrafiles
