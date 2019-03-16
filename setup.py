@@ -10,7 +10,7 @@ with open(os.path.join(os.path.dirname(__file__), 'README.md')) as f:
 
 setup(
     name='beets-extrafiles',
-    version='0.0.4',
+    version='0.0.5',
     description=(
         'A plugin for beets that copies additional files and directories '
         'during the import process.'
