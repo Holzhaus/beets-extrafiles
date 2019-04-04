@@ -297,3 +297,84 @@ class CopyFilesTestCase(BaseTestCase):
         assert os.path.isdir(os.path.join(destdir, 'artwork'))
         assert (set(os.listdir(os.path.join(destdir, 'artwork'))) ==
                 set(('front.jpg', 'back.jpg')))
+
+
+class MultiAlbumTestCase(unittest.TestCase):
+    """Testcase class that checks if multiple albums are grouped correctly."""
+
+    PLUGIN_CONFIG = {
+        'extrafiles': {
+            'patterns': {
+                'log': ['*.log'],
+            },
+        },
+    }
+
+    def setUp(self):
+        """Set up example files and instanciate the plugin."""
+        self.srcdir = tempfile.TemporaryDirectory(suffix='src')
+        self.dstdir = tempfile.TemporaryDirectory(suffix='dst')
+
+        for album in ('album1', 'album2'):
+            os.makedirs(os.path.join(self.dstdir.name, album))
+            sourcedir = os.path.join(self.srcdir.name, album)
+            os.makedirs(sourcedir)
+            shutil.copy(
+                os.path.join(RSRC, 'full.mp3'),
+                os.path.join(sourcedir, 'track01.mp3'),
+            )
+            shutil.copy(
+                os.path.join(RSRC, 'full.mp3'),
+                os.path.join(sourcedir, 'track02.mp3'),
+            )
+            logfile = os.path.join(sourcedir, '{}.log'.format(album))
+            open(logfile, mode='w').close()
+
+        # Set up plugin instance
+        config = beets.util.confit.RootView(sources=[
+            beets.util.confit.ConfigSource.of(self.PLUGIN_CONFIG),
+        ])
+
+        with unittest.mock.patch(
+                'beetsplug.extrafiles.beets.plugins.beets.config', config,
+        ):
+            self.plugin = beetsplug.extrafiles.ExtraFilesPlugin('extrafiles')
+
+    def tearDown(self):
+        """Remove the example files."""
+        self.srcdir.cleanup()
+        self.dstdir.cleanup()
+
+    def testAlbumGrouping(self):
+        """Test if albums are."""
+        for album in ('album1', 'album2'):
+            sourcedir = os.path.join(self.srcdir.name, album)
+            destdir = os.path.join(self.dstdir.name, album)
+
+            for i in range(1, 3):
+                source = os.path.join(sourcedir, 'track{0:02d}.mp3'.format(i))
+                destination = os.path.join(
+                    destdir, '{0:02d} - {1} - untitled.mp3'.format(i, album),
+                )
+                item = beets.library.Item.from_path(source)
+                item.album = album
+                item.track = i
+                item.tracktotal = 2
+                shutil.copy(source, destination)
+                self.plugin.on_item_copied(
+                    item, beets.util.bytestring_path(source),
+                    beets.util.bytestring_path(destination),
+                )
+
+        self.plugin.on_cli_exit(None)
+
+        for album in ('album1', 'album2'):
+            destdir = os.path.join(self.dstdir.name, album)
+            for i in range(1, 3):
+                destination = os.path.join(
+                    destdir, '{0:02d} - {1} - untitled.mp3'.format(i, album),
+                )
+                assert os.path.exists(destination)
+            assert os.path.exists(os.path.join(
+                self.dstdir.name, album, '{}.log'.format(album),
+            ))
