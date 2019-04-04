@@ -174,6 +174,10 @@ class ExtraFilesPlugin(beets.plugins.BeetsPlugin):
 
             source = commonpath(sourcedirs)
             destination = commonpath(destdirs)
+            self._log.debug(
+                '{0} -> {1} ({2.album} by {2.albumartist}, {3} tracks)',
+                source, destination, item, len(items),
+            )
 
             meta = {
                 'artist': item.artist or u'None',
