@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """Tests for the beets-extrafiles plugin."""
+import logging
 import os
 import shutil
 import tempfile
@@ -10,6 +11,10 @@ import beets.util.confit
 import beetsplug.extrafiles
 
 RSRC = os.path.join(os.path.dirname(__file__), 'rsrc')
+
+log = logging.getLogger('beets')
+log.propagate = True
+log.setLevel(logging.DEBUG)
 
 
 class BaseTestCase(unittest.TestCase):
