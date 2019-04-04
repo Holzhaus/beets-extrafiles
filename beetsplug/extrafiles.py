@@ -71,6 +71,10 @@ class ExtraFilesPlugin(beets.plugins.BeetsPlugin):
     def __init__(self, *args, **kwargs):
         """Initialize a new plugin instance."""
         super(ExtraFilesPlugin, self).__init__(*args, **kwargs)
+        self.config.add({
+            'patterns': {},
+            'paths': {},
+        })
 
         self._moved_items = set()
         self._copied_items = set()
