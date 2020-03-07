@@ -132,19 +132,17 @@ class ExtraFilesPlugin(beets.plugins.BeetsPlugin):
 
     def process_items(self, files, action):
         """Move path to dest."""
-        # Skip files that were moved by other plugins
-        skipped_files = set()
         for source, destination in files:
             if not os.path.exists(source):
                 self._log.warning('Skipping missing source file: {0}', source)
-                skipped_files.add(source)
+                continue
 
             if os.path.exists(destination):
                 self._log.warning(
                     'Skipping already present destination file: {0}',
                     destination,
                 )
-                skipped_files.add(source)
+                continue
 
             sourcepath = beets.util.bytestring_path(source)
             destpath = beets.util.bytestring_path(destination)
