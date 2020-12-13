@@ -7,9 +7,9 @@ import shutil
 import sys
 import traceback
 
+import mediafile
 import beets.dbcore.db
 import beets.library
-import beets.mediafile
 import beets.plugins
 import beets.ui
 import beets.util.functemplate
@@ -209,7 +209,7 @@ class ExtraFilesPlugin(beets.plugins.BeetsPlugin):
 
                     # Skip files handled by the beets media importer
                     ext = os.path.splitext(path)[1]
-                    if len(ext) > 1 and ext[1:] in beets.mediafile.TYPES:
+                    if len(ext) > 1 and ext[1:] in mediafile.TYPES.keys():
                         continue
 
                     yield (path, category)
