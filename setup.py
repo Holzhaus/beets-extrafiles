@@ -26,7 +26,7 @@ setup(
     test_suite='tests',
     install_requires=[
         'beets>=1.4.7',
-        'mediafile~=0.6.0',
+        'mediafile>=0.9.0',
     ],
     classifiers=[
         'Topic :: Multimedia :: Sound/Audio',
